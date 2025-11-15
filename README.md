@@ -1,1 +1,1 @@
-# Odoo-Development-Tutorial
+# Odoo Install Guide
