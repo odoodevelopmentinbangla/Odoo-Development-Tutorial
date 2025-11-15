@@ -1,18 +1,18 @@
 # Odoo Install Guide
 #!/bin/bash
 ################################################################################
-# Script for installing Odoo 19 on Ubuntu 24.04 (could be used for other version too)
-# Author: Yenthe Van Ginneken
+ Script for installing Odoo 19 on Ubuntu 24.04 (could be used for other version too)
+ Author: Yenthe Van Ginneken
 #-------------------------------------------------------------------------------
-# This script will install Odoo on your Ubuntu server. It can install multiple Odoo instances
-# in one Ubuntu because of the different xmlrpc_ports
+ This script will install Odoo on your Ubuntu server. It can install multiple Odoo instances
+ in one Ubuntu because of the different xmlrpc_ports
 #-------------------------------------------------------------------------------
-# Make a new file:
-# sudo nano odoo-install.sh
-# Place this content in it and then make the file executable:
-# sudo chmod +x odoo-install.sh
-# Execute the script to install Odoo:
-# ./odoo-install
+ Make a new file:
+ sudo nano odoo-install.sh
+ Place this content in it and then make the file executable:
+ sudo chmod +x odoo-install.sh
+ Execute the script to install Odoo:
+ ./odoo-install
 ################################################################################
 
 OE_USER="odoo"
