@@ -14,17 +14,17 @@
 # ./odoo-install
 ################################################################################
 
-OE_USER="odoo"
-OE_HOME="/$OE_USER"
-OE_HOME_EXT="/$OE_USER/${OE_USER}-server"
+OE_USER="odoo18"
+OE_HOME="/opt/odoo-development/$OE_USER"
+OE_HOME_EXT="/opt/odoo-development/$OE_USER/${OE_USER}-server"
 # The default port where this Odoo instance will run under (provided you use the command -c in the terminal)
 # Set to true if you want to install it, false if you don't need it or have it already installed.
 INSTALL_WKHTMLTOPDF="True"
 # Set the default Odoo port (you still have to use -c /etc/odoo-server.conf for example to use this.)
-OE_PORT="8069"
+OE_PORT="8018"
 # Choose the Odoo version which you want to install. For example: 16.0, 15.0, 14.0 or saas-22. When using 'master' the master version will be installed.
 # IMPORTANT! This script contains extra libraries that are specifically needed for Odoo 17.0
-OE_VERSION="19.0"
+OE_VERSION="18.0"
 # Set this to True if you want to install the Odoo enterprise version!
 IS_ENTERPRISE="False"
 # Installs postgreSQL V16 instead of defaults (e.g V12 for Ubuntu 20/22) - this improves performance
@@ -34,7 +34,7 @@ INSTALL_NGINX="False"
 # Set the superadmin password - if GENERATE_RANDOM_PASSWORD is set to "True" we will automatically generate a random password, otherwise we use this one
 OE_SUPERADMIN="admin"
 # Set to "True" to generate a random password, "False" to use the variable in OE_SUPERADMIN
-GENERATE_RANDOM_PASSWORD="True"
+GENERATE_RANDOM_PASSWORD="False"
 OE_CONFIG="${OE_USER}-server"
 # Set the website name
 WEBSITE_NAME="_"
@@ -121,11 +121,18 @@ echo -e "\n--- Installing Python 3 + pip3 --"
 sudo apt-get install -y python3 python3-pip
 sudo apt-get install git python3-cffi build-essential wget python3-dev python3-venv python3-wheel libxslt-dev libzip-dev libldap2-dev libsasl2-dev python3-setuptools node-less libpng-dev libjpeg-dev gdebi -y
 
+
+
+python3.12 -m venv {$OE_USER}-venv
+source {$OE_USER}-venv/bin/activate
+
 echo -e "\n---- Install python packages/requirements ----"
 pip_install -r https://github.com/odoo/odoo/raw/${OE_VERSION}/requirements.txt
 
 # Extra: ensure phonenumbers is installed
 pip_install phonenumbers
+
+deactivate
 
 echo -e "\n---- Installing nodeJS NPM and rtlcss for LTR support ----"
 sudo apt-get install nodejs npm -y
@@ -208,7 +215,7 @@ sudo chown -R $OE_USER:$OE_USER $OE_HOME/*
 echo -e "* Create server config file"
 
 
-sudo touch /etc/${OE_CONFIG}.conf
+sudo touch /opt/odoo/${OE_USER}/${OE_CONFIG}.conf
 echo -e "* Creating server config file"
 sudo su root -c "printf '[options] \n; This is the password that allows database operations:\n' >> /etc/${OE_CONFIG}.conf"
 if [ $GENERATE_RANDOM_PASSWORD = "True" ]; then
