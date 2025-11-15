@@ -1,4 +1,4 @@
-# Odoo Install Guide
+
 #!/bin/bash
 ################################################################################
 # Script for installing Odoo 19 on Ubuntu 24.04 (could be used for other version too)
