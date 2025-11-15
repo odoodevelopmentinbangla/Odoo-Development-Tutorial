@@ -1,18 +1,18 @@
 # Odoo Install Guide
 #!/bin/bash
 ################################################################################
- Script for installing Odoo 19 on Ubuntu 24.04 (could be used for other version too)
- Author: Yenthe Van Ginneken
+# Script for installing Odoo 19 on Ubuntu 24.04 (could be used for other version too)
+# Author: Yenthe Van Ginneken
 #-------------------------------------------------------------------------------
- This script will install Odoo on your Ubuntu server. It can install multiple Odoo instances
- in one Ubuntu because of the different xmlrpc_ports
+# This script will install Odoo on your Ubuntu server. It can install multiple Odoo instances
+# in one Ubuntu because of the different xmlrpc_ports
 #-------------------------------------------------------------------------------
- Make a new file:
- sudo nano odoo-install.sh
- Place this content in it and then make the file executable:
- sudo chmod +x odoo-install.sh
- Execute the script to install Odoo:
- ./odoo-install
+# Make a new file:
+# sudo nano odoo-install.sh
+# Place this content in it and then make the file executable:
+# sudo chmod +x odoo-install.sh
+# Execute the script to install Odoo:
+# ./odoo-install
 ################################################################################
 
 OE_USER="odoo"
@@ -316,8 +316,6 @@ sudo chown root: /etc/init.d/$OE_CONFIG
 echo -e "* Start ODOO on Startup"
 sudo update-rc.d $OE_CONFIG defaults
 
-
-
 echo "-----------------------------------------------------------"
 echo "Done! The Odoo server is up and running. Specifications:"
 echo "Port: $OE_PORT"
@@ -331,7 +329,3 @@ echo "Password superadmin (database): $OE_SUPERADMIN"
 echo "Start Odoo service: sudo service $OE_CONFIG start"
 echo "Stop Odoo service: sudo service $OE_CONFIG stop"
 echo "Restart Odoo service: sudo service $OE_CONFIG restart"
-if [ $INSTALL_NGINX = "True" ]; then
-  echo "Nginx configuration file: /etc/nginx/sites-available/$WEBSITE_NAME"
-fi
-echo "-----------------------------------------------------------"
