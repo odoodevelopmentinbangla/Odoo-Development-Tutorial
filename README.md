@@ -30,6 +30,7 @@ sudo systemctl enable --now postgresql
 
 echo -e "\n============== Creating ODOO PostgreSQL User ================="
 sudo su - postgres -c "createuser -s $OE_USER" || true
+sudo su - postgres -c "psql -c \"ALTER USER $OE_USER WITH PASSWORD 'odoo';\""
 
 #--------------------------------------------------
 # Install Python & system dependencies
@@ -89,7 +90,7 @@ admin_passwd = $OE_SUPERADMIN
 db_host = False
 db_port = False
 db_user = $OE_USER
-db_password = False
+db_password = odoo
 addons_path = $OE_HOME/$OE_USER/addons,$OE_HOME/$OE_USER/odoo/addons,$OE_HOME/$OE_USER/enterprise,$OE_HOME/$OE_USER/custom
 logfile = /var/log/$OE_USER/$OE_USER.log
 logrotate = True
@@ -106,6 +107,8 @@ sudo chmod 640 $OE_CONFIG
 #--------------------------------------------------
 sudo mkdir -p /var/log/$OE_USER
 sudo chown $OE_USER:$OE_USER /var/log/$OE_USER
+sudo chmod -R 777 /opt/odoo-development/
+
 
 #--------------------------------------------------
 # Create systemd service
