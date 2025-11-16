@@ -1,13 +1,12 @@
 #!/bin/bash
 ################################################################################
-# Odoo 17 Installation Script on Ubuntu 22.04 / 24.04 (KT24 Setup)
-# Author: ChatGPT (based on your draft)
+# Odoo 18 Installation Script on Ubuntu 22.04 
 ################################################################################
 
-OE_USER="odoo17"
+OE_USER="odoo18"
 OE_HOME="/opt/odoo-development/$OE_USER"
-OE_VERSION="17.0"
-OE_PORT="8017"
+OE_VERSION="18.0"
+OE_PORT="8018"
 OE_LONGPOLLING="9017"
 OE_SUPERADMIN="master"
 OE_CONFIG="/opt/odoo-development/$OE_USER/$OE_USER.conf"
@@ -63,7 +62,7 @@ sudo useradd -m -d $OE_HOME -U -r -s /bin/bash $OE_USER || true
 # Clone Odoo code
 #--------------------------------------------------
 echo -e "\n============== Cloning Odoo from GitHub ================="
-sudo -u $OE_USER git clone --depth 1 --branch $OE_VERSION https://github.com/symlextechnologies/kt24_test.git $OE_HOME/$OE_USER
+sudo -u $OE_USER git clone --depth 1 --branch $OE_VERSION https://github.com/odoo/odoo.git $OE_HOME/$OE_USER
 
 #--------------------------------------------------
 # Install Python virtual environment
@@ -114,7 +113,7 @@ sudo chown $OE_USER:$OE_USER /var/log/$OE_USER
 echo -e "\n============== Creating systemd Service ================="
 sudo tee $OE_SERVICE <<EOF
 [Unit]
-Description=Odoo17
+Description=Odoo18
 After=network.target postgresql.service
 
 [Service]
