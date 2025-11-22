@@ -69,7 +69,7 @@ sudo -u $OE_USER git clone --depth 1 --branch $OE_VERSION https://github.com/odo
 # Install Python virtual environment
 #--------------------------------------------------
 echo -e "\n============== Setting up Python venv ================="
-sudo apt install -y python3.12 python3.12-venv python3.12-dev
+sudo apt install -y python3 python3-venv python3-dev
 
 sudo -u $OE_USER bash <<EOF
 cd $OE_HOME
