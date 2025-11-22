@@ -73,7 +73,7 @@ sudo apt install -y python3.12 python3.12-venv python3.12-dev
 
 sudo -u $OE_USER bash <<EOF
 cd $OE_HOME
-python3.12 -m venv ${OE_USER}-venv
+python3 -m venv ${OE_USER}-venv
 source ${OE_USER}-venv/bin/activate
 pip install --upgrade pip wheel
 pip install -r $OE_USER/requirements.txt
