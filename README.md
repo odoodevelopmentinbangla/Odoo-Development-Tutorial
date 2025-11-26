@@ -71,8 +71,9 @@ sudo -u $OE_USER git clone --depth 1 --branch $OE_VERSION https://github.com/odo
 echo -e "\n============== Setting up Python venv ================="
 sudo apt install -y python3 python3-venv python3-dev
 
-sudo -u $OE_USER bash <<EOF
+su $OE_USER bash <<EOF
 cd $OE_HOME
+OE_USER="odoo18"
 python3 -m venv ${OE_USER}-venv
 source ${OE_USER}-venv/bin/activate
 pip install --upgrade pip wheel
