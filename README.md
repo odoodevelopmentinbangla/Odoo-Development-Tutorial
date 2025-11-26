@@ -1,28 +1,33 @@
 #!/bin/bash
 ################################################################################
-# Odoo 18 Installation Script on Ubuntu 22.04 
+# Odoo 18 Installation Script (Fixed for Ubuntu 22.04 / 24.04)
 ################################################################################
-
 OE_USER="odoo18"
 OE_HOME="/opt/odoo-development/$OE_USER"
 OE_VERSION="18.0"
 OE_PORT="8018"
 OE_LONGPOLLING="9017"
 OE_SUPERADMIN="master"
-OE_CONFIG="/opt/odoo-development/$OE_USER/$OE_USER.conf"
+OE_CONFIG="/etc/odoo18.conf"
 OE_SERVICE="/etc/systemd/system/$OE_USER.service"
 
-sudo mkdir -p $OE_HOME
-sudo chown -R $OE_USER:$OE_USER $OE_HOME
-sudo chmod -R 755 $OE_HOME
-
+#--------------------------------------------------
+# 1. Update Server
+#--------------------------------------------------
 echo -e "\n============== Update Server ======================="
-sudo apt update 
+sudo apt update
 sudo apt upgrade -y
 sudo apt autoremove -y
 
 #--------------------------------------------------
-# Install PostgreSQL
+# 2. Create Odoo system user
+#--------------------------------------------------
+echo -e "\n============== Creating ODOO system user ================="
+# We create the user first so we can assign permissions correctly later
+sudo useradd -m -d $OE_HOME -U -r -s /bin/bash $OE_USER || echo "User already exists."
+
+#--------------------------------------------------
+# 3. Install PostgreSQL
 #--------------------------------------------------
 echo -e "\n============== Install PostgreSQL =================="
 sudo apt install -y postgresql
@@ -33,7 +38,7 @@ sudo su - postgres -c "createuser -s $OE_USER" || true
 sudo su - postgres -c "psql -c \"ALTER USER $OE_USER WITH PASSWORD 'odoo';\""
 
 #--------------------------------------------------
-# Install Python & system dependencies
+# 4. Install Python & system dependencies
 #--------------------------------------------------
 echo -e "\n============== Installing Python & Dependencies ================="
 sudo apt install -y git python3 python3-dev python3-pip build-essential wget python3-venv python3-wheel python3-cffi \
@@ -41,48 +46,48 @@ libxslt-dev libzip-dev libldap2-dev libsasl2-dev python3-setuptools node-less li
 libblas-dev liblcms2-dev zlib1g-dev libjpeg8-dev libxrender1 software-properties-common libssl-dev \
 libpq-dev libxml2-dev libxslt1-dev libffi-dev xfonts-75dpi xfonts-encodings xfonts-utils xfonts-base fontconfig
 
-sudo pip3 install --upgrade pip setuptools wheel
+#--------------------------------------------------
+# 5. Install Wkhtmltopdf (UPDATED for Ubuntu 22.04/24.04)
+#--------------------------------------------------
+echo -e "\n============== Installing wkhtmltopdf ================="
+# Using the Jammy package which works on newer Ubuntus without libssl1.1 issues
+wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+sudo apt install -y ./wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+rm wkhtmltox_0.12.6.1-2.jammy_amd64.deb
 
 #--------------------------------------------------
-# Install Wkhtmltopdf (v0.12.5)
+# 6. Clone Odoo & Setup Venv
 #--------------------------------------------------
-echo -e "\n============== Installing wkhtmltopdf 0.12.5 ================="
-cd /tmp
-sudo wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
-sudo dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb
-sudo ln -sf /usr/local/bin/wkhtmltopdf /usr/bin
-sudo ln -sf /usr/local/bin/wkhtmltoimage /usr/bin
+echo -e "\n============== Setting up Odoo Code & Venv ================="
 
-#--------------------------------------------------
-# Create Odoo system user
-#--------------------------------------------------
-echo -e "\n============== Creating ODOO system user ================="
-sudo useradd -m -d $OE_HOME -U -r -s /bin/bash $OE_USER || true
+# Create the directory if it doesn't exist and set ownership
+sudo mkdir -p $OE_HOME
+sudo chown -R $OE_USER:$OE_USER $OE_HOME
 
-#--------------------------------------------------
-# Clone Odoo code
-#--------------------------------------------------
-echo -e "\n============== Cloning Odoo from GitHub ================="
-sudo -u $OE_USER git clone --depth 1 --branch $OE_VERSION https://github.com/odoo/odoo.git $OE_HOME/$OE_USER
+# Run the following block strictly as the Odoo user
+sudo -u $OE_USER bash << EOF
+    cd $OE_HOME
+    
+    # Clone Odoo if not already there
+    if [ ! -d "odoo" ]; then
+        git clone --depth 1 --branch $OE_VERSION https://github.com/odoo/odoo.git odoo
+    fi
 
-#--------------------------------------------------
-# Install Python virtual environment
-#--------------------------------------------------
-echo -e "\n============== Setting up Python venv ================="
-sudo apt install -y python3 python3-venv python3-dev
-
-su $OE_USER bash <<EOF
-cd $OE_HOME
-OE_USER="odoo18"
-python3 -m venv ${OE_USER}-venv
-source ${OE_USER}-venv/bin/activate
-pip install --upgrade pip wheel
-pip install -r $OE_USER/requirements.txt
-deactivate
+    # Create Virtual Env INSIDE the user home
+    python3 -m venv venv
+    
+    # Activate and Install
+    source venv/bin/activate
+    pip install --upgrade pip wheel setuptools
+    
+    # Install Odoo requirements
+    pip install -r odoo/requirements.txt
+    
+    deactivate
 EOF
 
 #--------------------------------------------------
-# Create Odoo configuration file
+# 7. Create Odoo configuration file
 #--------------------------------------------------
 echo -e "\n============== Creating Odoo Config ================="
 sudo tee $OE_CONFIG <<EOF
@@ -92,7 +97,7 @@ db_host = False
 db_port = False
 db_user = $OE_USER
 db_password = odoo
-addons_path = $OE_HOME/$OE_USER/addons,$OE_HOME/$OE_USER/odoo/addons ;,$OE_HOME/$OE_USER/enterprise,$OE_HOME/$OE_USER/custom
+addons_path = $OE_HOME/odoo/addons
 logfile = /var/log/$OE_USER/$OE_USER.log
 logrotate = True
 xmlrpc_port = $OE_PORT
@@ -104,15 +109,13 @@ sudo chown $OE_USER:$OE_USER $OE_CONFIG
 sudo chmod 640 $OE_CONFIG
 
 #--------------------------------------------------
-# Setup log directory
+# 8. Setup log directory
 #--------------------------------------------------
 sudo mkdir -p /var/log/$OE_USER
 sudo chown $OE_USER:$OE_USER /var/log/$OE_USER
-sudo chmod -R 777 /opt/odoo-development/
-
 
 #--------------------------------------------------
-# Create systemd service
+# 9. Create systemd service
 #--------------------------------------------------
 echo -e "\n============== Creating systemd Service ================="
 sudo tee $OE_SERVICE <<EOF
@@ -126,7 +129,7 @@ SyslogIdentifier=$OE_USER
 PermissionsStartOnly=true
 User=$OE_USER
 Group=$OE_USER
-ExecStart=$OE_HOME/${OE_USER}-venv/bin/python3 $OE_HOME/$OE_USER/odoo-bin -c $OE_CONFIG
+ExecStart=$OE_HOME/venv/bin/python3 $OE_HOME/odoo/odoo-bin -c $OE_CONFIG
 StandardOutput=journal+console
 Restart=always
 
@@ -135,7 +138,7 @@ WantedBy=multi-user.target
 EOF
 
 #--------------------------------------------------
-# Start Odoo service
+# 10. Start Odoo service
 #--------------------------------------------------
 sudo systemctl daemon-reload
 sudo systemctl enable --now $OE_USER
