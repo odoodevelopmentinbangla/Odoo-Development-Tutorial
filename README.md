@@ -46,14 +46,17 @@ libxslt-dev libzip-dev libldap2-dev libsasl2-dev python3-setuptools node-less li
 libblas-dev liblcms2-dev zlib1g-dev libjpeg8-dev libxrender1 software-properties-common libssl-dev \
 libpq-dev libxml2-dev libxslt1-dev libffi-dev xfonts-75dpi xfonts-encodings xfonts-utils xfonts-base fontconfig
 
+wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
+sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
+
 #--------------------------------------------------
 # 5. Install Wkhtmltopdf (UPDATED for Ubuntu 22.04/24.04)
 #--------------------------------------------------
 echo -e "\n============== Installing wkhtmltopdf ================="
 # Using the Jammy package which works on newer Ubuntus without libssl1.1 issues
-wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-sudo apt install -y ./wkhtmltox_0.12.6.1-2.jammy_amd64.deb
-rm wkhtmltox_0.12.6.1-2.jammy_amd64.deb
+wget https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.5/wkhtmltox_0.12.5-1.bionic_amd64.deb
+sudo dpkg -i wkhtmltox_0.12.5-1.bionic_amd64.deb
+sudo apt-get install -f -y
 
 #--------------------------------------------------
 # 6. Clone Odoo & Setup Venv
