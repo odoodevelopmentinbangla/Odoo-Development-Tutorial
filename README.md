@@ -49,6 +49,10 @@ libpq-dev libxml2-dev libxslt1-dev libffi-dev xfonts-75dpi xfonts-encodings xfon
 wget http://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
 sudo dpkg -i libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
 
+sudo apt-get update
+sudo apt-get install -y fonts-lohit-beng-bengali fonts-beng-extra
+sudo fc-cache -f -v
+
 #--------------------------------------------------
 # 5. Install Wkhtmltopdf (UPDATED for Ubuntu 22.04/24.04)
 #--------------------------------------------------
